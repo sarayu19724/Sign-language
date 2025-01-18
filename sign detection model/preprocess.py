@@ -10,8 +10,8 @@ mp_drawing = mp.solutions.drawing_utils
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.5)
 
 # Define paths
-input_folder = './data'  # Folder containing original photos and subfolders
-output_folder = './annotated_data'  # Folder to save images with landmarks
+input_folder = './data' 
+output_folder = './annotated_data'  
 
 # Create output directory if it doesn't exist
 if not os.path.exists(output_folder):
