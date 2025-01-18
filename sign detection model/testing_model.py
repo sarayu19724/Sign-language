@@ -10,7 +10,7 @@ def load_test_data():
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-    DATA_DIR = './data'  # Directory containing test images
+    DATA_DIR = './annotated_data'  # Directory containing test images
     data = []
     labels = []
 

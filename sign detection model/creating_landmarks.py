@@ -6,7 +6,7 @@ import cv2
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-DATA_DIR = './data'
+DATA_DIR = './annotated_data'
 
 data = []
 labels = []
