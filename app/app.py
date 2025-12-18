@@ -6,19 +6,19 @@ import mediapipe as mp
 
 app = Flask(__name__)
 
-# 🔹 Load the trained model
-with open("model.p", "rb") as f:
+
+with open("C:\GitHub\Sign-language\model.p", "rb") as f:
     model_dict = pickle.load(f)
 model = model_dict['random_forest']
 
-# 🔹 Load label dictionary
-with open("data.pickle", "rb") as f:
-    labels = pickle.load(f)  # Example: {0: 'A', 1: 'B', ..., 25: 'Z'}
 
-# 🔹 Start the webcam
+with open("C:\GitHub\Sign-language\data.pickle", "rb") as f:
+    labels = pickle.load(f)  
+
+
 camera = cv2.VideoCapture(0)
 
-# 🔹 Video stream generator
+
 def gen_frames():
     mp_hands = mp.solutions.hands
     mp_drawing = mp.solutions.drawing_utils
@@ -86,7 +86,7 @@ def gen_frames():
             except Exception as e:
                 pass
 
-        # Encode the frame
+        
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
             continue
@@ -95,16 +95,15 @@ def gen_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-# 🔹 Webpage route
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# 🔹 Video stream route
 @app.route('/video')
 def video():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# 🔹 Run the Flask app
+
 if __name__ == '__main__':
     app.run(debug=True)
