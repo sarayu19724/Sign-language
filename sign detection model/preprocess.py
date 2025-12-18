@@ -1,55 +1,62 @@
 import os
-import cv2
-import mediapipe as mp
+import pickle
+import mediapipe as mp 
+import cv2   
 
-# Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-# Set up MediaPipe Hands
-hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.5)
 
-# Define paths
-input_folder = './data' 
-output_folder = './annotated_data'  
+hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
-# Create output directory if it doesn't exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+DATA_DIR = './annotated_data'
 
-# Process each subfolder in the input folder
-for subdir, _, files in os.walk(input_folder):
-    # Create a corresponding subdirectory in the output folder
-    rel_subdir = os.path.relpath(subdir, input_folder)
-    current_output_folder = os.path.join(output_folder, rel_subdir)
-    os.makedirs(current_output_folder, exist_ok=True)
+data = []
+labels = []
 
-    # Process each image in the current subdirectory
-    for image_name in files:
-        image_path = os.path.join(subdir, image_name)
+# Iterate through each directory and image
+for dir_ in os.listdir(DATA_DIR):
+    print(f"Processing directory: {dir_}")
+    for img_path in os.listdir(os.path.join(DATA_DIR, dir_)):
+        img_full_path = os.path.join(DATA_DIR, dir_, img_path)
+        print(f"Processing image: {img_full_path}")
         
-        # Read the image
-        image = cv2.imread(image_path)
-        if image is None:
-            print(f"Could not read image: {image_path}")
+        img = cv2.imread(img_full_path)
+        
+        if img is None:
+            print(f"Warning: Unable to read image {img_path}. Skipping.")
             continue
+        
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = hands.process(img_rgb)
 
-        # Convert the image to RGB
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        # Process the image and get hand landmarks
-        results = hands.process(image_rgb)
-
-        # Draw landmarks on the image
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS,mp_drawing_styles.get_default_hand_landmarks_style(),
-                mp_drawing_styles.get_default_hand_connections_style())
+                data_aux = []
+                x_ = []
+                y_ = []
 
-        # Save the processed image with landmarks
-        output_image_path = os.path.join(current_output_folder, f"landmark_{image_name}")
-        cv2.imwrite(output_image_path, image)
-        print(f"Saved image with landmarks: {output_image_path}")
+                for landmark in hand_landmarks.landmark:
+                    x = landmark.x
+                    y = landmark.y
+                    x_.append(x)
+                    y_.append(y)
 
-# Release MediaPipe resources
-hands.close()
+                # Normalize the coordinates
+                if x_ and y_:  # Ensure there are landmarks
+                    min_x = min(x_)
+                    min_y = min(y_)
+                    for i in range(len(hand_landmarks.landmark)):
+                        data_aux.append(x_[i] - min_x)
+                        data_aux.append(y_[i] - min_y)
+
+                data.append(data_aux)
+                labels.append(dir_)
+                print(f"Detected landmarks for image: {img_path}")
+
+        else:
+            print(f"No hands detected in image: {img_path}")
+
+# Save the data to a pickle file
+with open('data.pickle', 'wb') as f:
+    pickle.dump({'data': data, 'labels': labels}, f)
+
+print("Data collection completed and saved successfully.")
