@@ -41,7 +41,7 @@ for name, model in models.items():
     results[name] = acc
     print(f"{name} accuracy: {acc*100:.2f}%")
 
-# Save models
+
 with open('model.p', 'wb') as f:
     pickle.dump(models, f)
 

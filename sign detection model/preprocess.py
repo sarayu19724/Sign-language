@@ -12,7 +12,7 @@ DATA_DIR = './annotated_data'
 data = []
 labels = []
 
-# Iterate through each directory and image
+
 for dir_ in os.listdir(DATA_DIR):
     print(f"Processing directory: {dir_}")
     for img_path in os.listdir(os.path.join(DATA_DIR, dir_)):
@@ -40,8 +40,8 @@ for dir_ in os.listdir(DATA_DIR):
                     x_.append(x)
                     y_.append(y)
 
-                # Normalize the coordinates
-                if x_ and y_:  # Ensure there are landmarks
+                
+                if x_ and y_: 
                     min_x = min(x_)
                     min_y = min(y_)
                     for i in range(len(hand_landmarks.landmark)):
@@ -55,7 +55,7 @@ for dir_ in os.listdir(DATA_DIR):
         else:
             print(f"No hands detected in image: {img_path}")
 
-# Save the data to a pickle file
+
 with open('data.pickle', 'wb') as f:
     pickle.dump({'data': data, 'labels': labels}, f)
 

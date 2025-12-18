@@ -23,7 +23,7 @@ def count_valid_samples(data_dir="./annotated_data"):
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             results = hands.process(img_rgb)
 
-            # Count only if landmarks are detected
+            
             if results.multi_hand_landmarks:
                 class_counts[dir_] += 1
 
@@ -32,6 +32,6 @@ def count_valid_samples(data_dir="./annotated_data"):
 
 if __name__ == "__main__":
     counts = count_valid_samples("./annotated_data")
-    print("✅ Valid landmark samples per class:")
+    print(" Valid landmark samples per class:")
     for cls, cnt in counts.items():
         print(f"Class {cls}: {cnt} samples")
